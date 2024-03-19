@@ -1,4 +1,4 @@
-package com.ohgiraffers.chap02_flutter_onboarding
+package com.example.chap06_flutter_number_trivia
 
 import io.flutter.embedding.android.FlutterActivity
 

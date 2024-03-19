@@ -47,24 +47,25 @@ class TestScreen extends StatelessWidget {
           fontSize: 35,
           fontFamily: "Pretendard",
           fontWeight: FontWeight.w800),
-      subTitle: 'ENFJ 저는 오지잪이 넓은 사람입니다. \n 제 문제는 몰라도 여러분에겐 \n 든든한 강사가 되겠습니다.',
+      subTitle: '아직 초보 개발자 이지만\n 아기 오리처럼 열심히 노력해서 \n배우고 나아가고 싶습니다',
       subTitleTextStyle: TextStyle(
         fontSize: 25,
         fontFamily: "WagleWagle",
       ),
-      imageUrl: 'assets/images/before.png',
+      imageUrl: 'assets/images/a.jpg',
     ),
     Introduction(
       title: '수료 후의 나',
       titleTextStyle: TextStyle(color: Colors.purple, fontSize: 35),
-      subTitle: '여러분은 취업 할 수 있어요!',
-      imageUrl: 'assets/images/after.png',
+      subTitle:
+          '멋진 백조의 모습처럼\n우아하고여유로운 모습을 하고\n수면아래 백조 다리처럼\n열심히 일을 하고 있을것 같습니다',
+      imageUrl: 'assets/images/b.jpg',
     ),
     Introduction(
       title: '10년 후의 나',
       titleTextStyle: TextStyle(color: Colors.purple, fontSize: 35),
-      subTitle: '경치 좋은 캠핑장 텐트 안에서\n 개발중..ing',
-      imageUrl: 'assets/images/ten_years_ago.png',
+      subTitle: '별이 보이는 집을 지어서\n가족과 함께 생활 하며\n여유로운 개발을 하고 싶습니다',
+      imageUrl: 'assets/images/c.jpg',
     ),
   ];
 
