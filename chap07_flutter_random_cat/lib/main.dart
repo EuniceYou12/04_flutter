@@ -1,13 +1,26 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+late SharedPreferences prefs;
+
+void main() async {
+  // main() 함수에서 async를 쓰려면 필요
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // shared_preference 인스턴스 생성
+  prefs = await SharedPreferences.getInstance();
+
+  // 좋아요한 리스트를 가져오기
+  List<String> favoriteCatImages =
+      prefs.getStringList("favoriteCatImages") ?? [];
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => CatService()),
+        ChangeNotifierProvider(
+            create: (context) => CatService(favoriteCatImages)),
       ],
       child: MyApp(),
     ),
@@ -15,7 +28,9 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  //MyApp 클래스의 생성자를 정의
+  //MyApp 클래스의 생성자는 key 매개변수를 부모 클래스의 생성자에 전달하는 역할
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,11 +45,17 @@ class MyApp extends StatelessWidget {
 class CatService extends ChangeNotifier {
   List<String> catImages = [];
   // 좋아요 한 고양이 사진을 담는 배열
-  List<String> favoriteCatImages = [];
+  List<String> favoriteCatImages; // = [];
+  // SharedPreferences 인스턴스 선언
 
   // CatService 생성자
-  CatService() {
+  CatService(this.favoriteCatImages) {
+    getFavoriteCatImages();
     getRandomCatImages();
+  }
+
+  void getFavoriteCatImages() async {
+    favoriteCatImages = await prefs.getStringList('favoriteCatImages') ?? [];
   }
 
   // 고양이 이미지 10개 가져오는 메서드
@@ -61,6 +82,9 @@ class CatService extends ChangeNotifier {
       favoriteCatImages.add(catImage);
     }
 
+    // 좋아요 누를때 prefs 에 저장
+    prefs.setStringList('favoriteCatImages', favoriteCatImages);
+
     notifyListeners();
   }
 }
@@ -82,7 +106,11 @@ class HomePage extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  //아이콘 버튼 눌렀을대 동작
+                  //아이콘 버튼 눌렀을 때  동작
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FavoritePage()),
+                  );
                 },
                 icon: Icon(
                   Icons.favorite,
@@ -126,7 +154,7 @@ class HomePage extends StatelessWidget {
                         child: Icon(
                           Icons.favorite,
                           color: catService.favoriteCatImages.contains(catImage)
-                              ? Colors.indigo
+                              ? Colors.pinkAccent
                               //투명한 색
                               : Colors.transparent,
                         ))
@@ -145,18 +173,74 @@ class HomePage extends StatelessWidget {
   }
 }
 
-/**
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- */
+class FavoritePage extends StatelessWidget {
+  const FavoritePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<CatService>(
+      builder: (context, catService, child) {
+        // 좋아요한 사진들을 모아서 보여줄 UI 작성
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(
+              '좋아요 사진 모아 보기', // 앱바 제목 설정
+
+              style: TextStyle(color: Colors.white), // 텍스트 스타일 설정
+            ),
+
+            backgroundColor: Colors.indigo, // 앱바 배경색 설정
+            actions: [
+              IconButton(
+                onPressed: () {
+                  // 아이콘 버튼 눌렀을 때 동작
+                },
+                icon: Icon(
+                  Icons.favorite, // 하트 아이콘 설정
+                  color: Colors.white, // 아이콘 색상 설정
+                ),
+              )
+            ],
+          ),
+          body: GridView.count(
+            crossAxisCount: 2,
+            // 그리드뷰의 열 개수 설정
+            mainAxisSpacing: 8,
+            // 주축(세로) 간격 설정
+            crossAxisSpacing: 8,
+            // 교차축(가로) 간격 설정
+            padding: EdgeInsets.all(8),
+            // 그리드뷰의 전체 패딩 설정
+            children:
+                List.generate(catService.favoriteCatImages.length, (index) {
+              String catImage =
+                  catService.favoriteCatImages[index]; // 좋아요한 고양이 이미지 URL
+              return GestureDetector(
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.network(
+                        catImage,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    Positioned(
+                        bottom: 8,
+                        right: 8,
+                        child: Icon(
+                          Icons.favorite,
+                          color: Colors.pinkAccent, // 항상 좋아요한 사진이므로 핑크색 하트 표시
+                        ))
+                  ],
+                ),
+                onTap: () {
+                  // 이미 좋아요한 사진이므로 추가 동작 필요 없음
+                },
+              );
+            }),
+          ),
+        );
+      },
+    );
+  }
+}
